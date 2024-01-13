@@ -10,7 +10,23 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>17</maven.compiler.release>
+	<maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
   </properties>
+  <build>
+	<pluginManagement>
+	  <plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>3.12.1</version>
+			<configuration>
+				<release>17</release>
+			</configuration>
+		</plugin>
+	  </plugins>
+	</pluginManagement>
+  </build>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -19,4 +35,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
 </project>
