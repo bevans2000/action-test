@@ -39,6 +39,5 @@ jobs:
       run: |
         cd ${{github.workspace}}
         gh release create  v${{ github.event.inputs.tag }} ./target/test-${{ github.event.inputs.tag }}.jar  --verfiy-tag --draft --prerelease --title 'Release v${{ github.event.inputs.tag }}' --notes-file ./RELEASE.md     
-    env:
-      GITHUB_TOKEN: ${{ github.TOKEN }}
-    shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.TOKEN }}
