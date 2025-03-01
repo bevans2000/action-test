@@ -33,9 +33,13 @@ jobs:
     - name: Check version
       if: ${{ github.event.inputs.tag != env.POM_VERSION }}
       run: echo POM version is incorrect at ${{ env.POM_VERSION }}. Expected ${{ github.event.inputs.tag }}. && exit 1
+    - name: Create tag
+      run: git tag -a ${{ github.event.inputs.tag }}
+      env:
+        GITHUB_TOKEN: ${{ github.TOKEN }}
     - name: Create Release
       run: |
         cd ${{github.workspace}}
-        gh release create  v${{ github.event.inputs.tag }} ./target/test-${{ github.event.inputs.tag }}.jar --target ${{ github.ref_name }} --draft --prerelease --title 'Release v${{ github.event.inputs.tag }}' --notes-file ./RELEASE.md     
+        gh release create v${{ github.event.inputs.tag }} ./target/test-${{ github.event.inputs.tag }}.jar --target ${{ github.ref_name }} --verify-tag --draft --prerelease --title 'Release v${{ github.event.inputs.tag }}' --notes-file ./RELEASE.md     
       env:
         GITHUB_TOKEN: ${{ github.TOKEN }}
