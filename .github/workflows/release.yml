@@ -9,6 +9,10 @@ on:
         required: true
         default: '1.0.0'
 
+# Make sure the GITHUB_TOKEN has permission to upload to our releases
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Create Release
@@ -29,24 +33,12 @@ jobs:
     - name: Check version
       if: ${{ github.event.inputs.tag != env.POM_VERSION }}
       run: echo POM version is incorrect at ${{ env.POM_VERSION }}. Expected ${{ github.event.inputs.tag }}. && exit 1
+    - name: Create Tag
+      run: git tag -a v${{ github.event.inputs.tag }} -m "Release v${{ github.event.inputs.tag }}"
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ github.event.inputs.tag }}
-        release_name: Release v${{ github.event.inputs.tag }}
-        body_path: ./RELEASE.md
-        draft: true
-        prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: ./target/test-${{ github.event.inputs.tag }}.jar
-        asset_name: mars-sim-${{ github.event.inputs.tag }}.jar
-        asset_content_type: application/java-archive
+      run: |
+        cd ${{github.workspace}}
+        gh release create  v${{ github.event.inputs.tag }} ./target/test-${{ github.event.inputs.tag }}.jar  --verfiy-tag --draft --prerelease --title 'Release v${{ github.event.inputs.tag }}' --notes-file ./RELEASE.md     
+    env:
+      GITHUB_TOKEN: ${{ github.TOKEN }}
+    shell: bash
