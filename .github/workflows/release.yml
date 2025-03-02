@@ -3,11 +3,6 @@ name: Create Release
 # This workflow is triggered on push events to the main branch
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release Number'
-        required: true
-        default: '1.0.0'
 
 # Make sure the GITHUB_TOKEN has permission to upload to our releases
 permissions:
@@ -30,18 +25,15 @@ jobs:
         mvn  --file pom.xml -B package
     - name: Extract build version
       run: echo "POM_VERSION=$(mvn org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-    - name: Check version
-      if: ${{ github.event.inputs.tag != env.POM_VERSION }}
-      run: echo POM version is incorrect at ${{ env.POM_VERSION }}. Expected ${{ github.event.inputs.tag }}. && exit 1
     - name: Create tag
       run: |
-        git tag v${{ github.event.inputs.tag }}
-        git push origin tag v${{ github.event.inputs.tag }}
+        git tag v${{ env.POM_VERSION }}
+        git push origin tag v${{ env.POM_VERSION }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Create Release
       run: |
         cd ${{github.workspace}}
-        gh release create v${{ github.event.inputs.tag }} ./target/test-${{ github.event.inputs.tag }}.jar --target ${{ github.ref_name }} --verify-tag --draft --prerelease --title 'Release v${{ github.event.inputs.tag }}' --notes-file ./RELEASE.md     
+        gh release create v${{ env.POM_VERSION }} ./target/test-${{ env.POM_VERSION }}.jar --verify-tag --draft --prerelease --title 'Release v${{ env.POM_VERSION }}' --notes-file ./RELEASE.md     
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
